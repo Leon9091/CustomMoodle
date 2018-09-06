@@ -18,7 +18,11 @@ public interface StudentDAO {
     public List<Student> findAll();
     public Student fin(String id);
     
-    public Student findByLastName(String name);
+    public List<Student> findByLastName(String name);
     public void delete(Student student);
     public void update(Student student);
+    
+    public void load();
+    
+    public void commitChanges();
 }

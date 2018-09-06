@@ -8,6 +8,7 @@ package edu.salle.custommoodle.view;
 import edu.salle.custommoodle.bussineslogic.StudentBLO;
 import edu.salle.custommoodle.model.Student;
 import java.util.List;
+import javax.swing.JOptionPane;
 import javax.swing.table.DefaultTableModel;
 
 /**
@@ -20,9 +21,11 @@ public class StudentWindow extends javax.swing.JFrame {
      * Creates new form StudentWindow
      */
     private StudentBLO studentBLO = new StudentBLO();
+
     public StudentWindow() {
         initComponents();
         setLocationRelativeTo(null);
+        studentBLO.load();
     }
 
     /**
@@ -47,6 +50,7 @@ public class StudentWindow extends javax.swing.JFrame {
         jScrollPane1 = new javax.swing.JScrollPane();
         tstudents = new javax.swing.JTable();
         bRefresh = new javax.swing.JButton();
+        bExit = new javax.swing.JButton();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
 
@@ -107,6 +111,13 @@ public class StudentWindow extends javax.swing.JFrame {
             }
         });
 
+        bExit.setText("Exit");
+        bExit.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                bExitActionPerformed(evt);
+            }
+        });
+
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
         layout.setHorizontalGroup(
@@ -130,16 +141,18 @@ public class StudentWindow extends javax.swing.JFrame {
                                         .addComponent(jLabel3, javax.swing.GroupLayout.PREFERRED_SIZE, 50, javax.swing.GroupLayout.PREFERRED_SIZE)
                                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                                         .addComponent(tfId, javax.swing.GroupLayout.PREFERRED_SIZE, 99, javax.swing.GroupLayout.PREFERRED_SIZE))
-                                    .addComponent(bupdate))
+                                    .addGroup(layout.createSequentialGroup()
+                                        .addComponent(bupdate)
+                                        .addGap(18, 18, 18)
+                                        .addComponent(bDelete)))
                                 .addGap(6, 6, 6))
-                            .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                            .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                                .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 339, javax.swing.GroupLayout.PREFERRED_SIZE)
                                 .addGroup(layout.createSequentialGroup()
                                     .addComponent(bs1)
                                     .addGap(31, 31, 31)
-                                    .addComponent(bser)
-                                    .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                                    .addComponent(bDelete))
-                                .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 339, javax.swing.GroupLayout.PREFERRED_SIZE))))
+                                    .addComponent(bser)))
+                            .addComponent(bExit)))
                     .addGroup(layout.createSequentialGroup()
                         .addGap(162, 162, 162)
                         .addComponent(bRefresh)))
@@ -158,17 +171,19 @@ public class StudentWindow extends javax.swing.JFrame {
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(tflastName, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(jLabel2, javax.swing.GroupLayout.PREFERRED_SIZE, 20, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 63, Short.MAX_VALUE)
+                .addGap(64, 64, 64)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(bs1)
                     .addComponent(bser)
                     .addComponent(bupdate)
                     .addComponent(bDelete))
-                .addGap(13, 13, 13)
+                .addGap(18, 18, 18)
                 .addComponent(bRefresh)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                .addGap(18, 18, 18)
                 .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 124, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(20, 20, 20))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 26, Short.MAX_VALUE)
+                .addComponent(bExit)
+                .addGap(24, 24, 24))
         );
 
         pack();
@@ -182,7 +197,7 @@ public class StudentWindow extends javax.swing.JFrame {
         // TODO add your handling code here:
         String name = tfName.getText();
         String lastname = tflastName.getText();
-        Student student = new Student(name,lastname);
+        Student student = new Student(name, lastname);
         studentBLO.save(student);
         tfName.setText("");
         tflastName.setText("");
@@ -190,11 +205,23 @@ public class StudentWindow extends javax.swing.JFrame {
 
     private void bserActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_bserActionPerformed
         // TODO add your handling code here:
-        String id=tfId.getText();
-        Student student = studentBLO.find(id);
-        tfName.setText(student.getName());
-        tflastName.setText(student.getLastname());
+////        String id=tfId.getText();
+////        Student student = studentBLO.find(id);
+////        if(student ! = null){
+//              tfName.setText(student.getName());
+////        tflastName.setText(student.getLastname());
+//    }
+        String lastName = tflastName.getText().trim();
+        if (!lastName.isEmpty()) {
+            List<Student> studentList = studentBLO.findByLastName(lastName);
+            if (!studentList.isEmpty()) {
+                refreshTable(studentList);
+            }
+        } else {
+            JOptionPane.showMessageDialog(null, "hola");
+        }
     }//GEN-LAST:event_bserActionPerformed
+
 
     private void bupdateActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_bupdateActionPerformed
         // TODO add your handling code here:
@@ -204,28 +231,34 @@ public class StudentWindow extends javax.swing.JFrame {
         // TODO add your handling code here:
     }//GEN-LAST:event_bDeleteActionPerformed
 
-    private void clearTable(){
-       DefaultTableModel dtm = (DefaultTableModel)tstudents.getModel();
-       while(dtm.getRowCount()>0){
-           dtm.removeRow(0);
-       }
+    private void clearTable() {
+        DefaultTableModel dtm = (DefaultTableModel) tstudents.getModel();
+        while (dtm.getRowCount() > 0) {
+            dtm.removeRow(0);
+        }
     }
-    
-    private void refreshTable(){
-        List<Student> studentList = studentBLO.findAll();
-        DefaultTableModel dtm = (DefaultTableModel)tstudents.getModel();
-        Object[] emptyRow={""};
-        
-        for(int i =0;i<studentList.size();i++){
+
+    private void refreshTable(List<Student> studentList) {
+        DefaultTableModel dtm = (DefaultTableModel) tstudents.getModel();
+        Object[] emptyRow = {""};
+
+        for (int i = 0; i < studentList.size(); i++) {
             dtm.addRow(emptyRow);
-            dtm.setValueAt(studentList.get(i).getId(),i,0);
-            dtm.setValueAt(studentList.get(i).getName(),i,1);
-            dtm.setValueAt(studentList.get(i).getLastname(),i,2);
-        } 
+            dtm.setValueAt(studentList.get(i).getId(), i, 0);
+            dtm.setValueAt(studentList.get(i).getName(), i, 1);
+            dtm.setValueAt(studentList.get(i).getLastname(), i, 2);
+        }
     }
     private void bRefreshActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_bRefreshActionPerformed
-        refreshTable();
+        clearTable();
+        refreshTable(studentBLO.findAll());
     }//GEN-LAST:event_bRefreshActionPerformed
+
+    private void bExitActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_bExitActionPerformed
+        // TODO add your handling code here:
+        studentBLO.commitChanges();
+        this.dispose();
+    }//GEN-LAST:event_bExitActionPerformed
 
     /**
      * @param args the command line arguments
@@ -241,16 +274,28 @@ public class StudentWindow extends javax.swing.JFrame {
                 if ("Nimbus".equals(info.getName())) {
                     javax.swing.UIManager.setLookAndFeel(info.getClassName());
                     break;
-                }
+                
+
+}
             }
         } catch (ClassNotFoundException ex) {
-            java.util.logging.Logger.getLogger(StudentWindow.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
-        } catch (InstantiationException ex) {
-            java.util.logging.Logger.getLogger(StudentWindow.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
-        } catch (IllegalAccessException ex) {
-            java.util.logging.Logger.getLogger(StudentWindow.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
-        } catch (javax.swing.UnsupportedLookAndFeelException ex) {
-            java.util.logging.Logger.getLogger(StudentWindow.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+            java.util.logging.Logger.getLogger(StudentWindow.class
+.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+        
+
+} catch (InstantiationException ex) {
+            java.util.logging.Logger.getLogger(StudentWindow.class
+.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+        
+
+} catch (IllegalAccessException ex) {
+            java.util.logging.Logger.getLogger(StudentWindow.class
+.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+        
+
+} catch (javax.swing.UnsupportedLookAndFeelException ex) {
+            java.util.logging.Logger.getLogger(StudentWindow.class
+.getName()).log(java.util.logging.Level.SEVERE, null, ex);
         }
         //</editor-fold>
 
@@ -264,6 +309,7 @@ public class StudentWindow extends javax.swing.JFrame {
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton bDelete;
+    private javax.swing.JButton bExit;
     private javax.swing.JButton bRefresh;
     private javax.swing.JButton bs1;
     private javax.swing.JButton bser;
