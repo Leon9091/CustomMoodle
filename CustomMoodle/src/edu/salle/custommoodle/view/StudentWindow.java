@@ -212,6 +212,7 @@ public class StudentWindow extends javax.swing.JFrame {
 ////        tflastName.setText(student.getLastname());
 //    }
         String lastName = tflastName.getText().trim();
+        clearTable();
         if (!lastName.isEmpty()) {
             List<Student> studentList = studentBLO.findByLastName(lastName);
             if (!studentList.isEmpty()) {

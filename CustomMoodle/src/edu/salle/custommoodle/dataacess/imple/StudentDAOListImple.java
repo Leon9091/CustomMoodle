@@ -57,7 +57,7 @@ public class StudentDAOListImple implements StudentDAO {
                 resstudentList.add(student);
             }
         }
-        return null;
+        return resstudentList;
     }
 
     @Override
